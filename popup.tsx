@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
+import { CONFIG, getFullUrl } from "./config";
 
 type MockDataItem = string;
 
@@ -71,7 +72,20 @@ const Popup = () => {
 
   const fetchMockData = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/preset-data");
+      const response = await fetch(
+        getFullUrl(
+          CONFIG.MOCK_SERVER.BASE_URL,
+          CONFIG.MOCK_SERVER.ENDPOINTS.PRESET_DATA
+        ),
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          mode: "cors",
+        }
+      );
       if (response.ok) {
         const data = await response.json();
         const mockFiles = data.files;
@@ -81,7 +95,14 @@ const Popup = () => {
           saveState("selectedMock", data[0]);
         }
       } else {
-        setStatus("无法连接到本地服务器");
+        const errorText = await response.text();
+        console.error(
+          "Fetch error:",
+          response.status,
+          response.statusText,
+          errorText
+        );
+        setStatus(`服务器错误 ${response.status}: ${response.statusText}`);
       }
     } catch (error) {
       setStatus("获取Mock数据失败");
@@ -139,6 +160,11 @@ const Popup = () => {
     setStatus("正在启动Mock...");
 
     try {
+      console.log("[popup] Sending startMocking message...");
+
+      // 确保 background script 是活跃的
+      await chrome.runtime.sendMessage({ type: "ping" });
+
       const response = await chrome.runtime.sendMessage({
         type: "startMocking",
         payload: {
@@ -151,6 +177,8 @@ const Popup = () => {
         },
       });
 
+      console.log("[popup] Received response:", response);
+
       if (response && response.success) {
         setStatus("Mock已启动");
       } else {
@@ -159,8 +187,8 @@ const Popup = () => {
         await saveState("isMocking", false);
       }
     } catch (error) {
-      console.error("Error starting mock:", error);
-      setStatus("Mock启动失败");
+      console.error("[popup] Error starting mock:", error);
+      setStatus(`Mock启动失败: ${error.message}`);
       setIsMocking(false);
       await saveState("isMocking", false);
     }

@@ -23,20 +23,21 @@
     }
   };
   restoreCapturingState();
+  var preConversationId = "";
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     console.log("[mock] content.js onMessage", message);
     if (message.type === "toggleCapture") {
-      if (!isCapturing && message.enabled) {
+      if (message.enabled) {
         intervalForCheckForConversationId();
-      } else if (isCapturing && !message.enabled) {
-        isCapturing = message.enabled;
+      } else {
+        preConversationId = "";
         clearTimeout(checkingIDTimer);
       }
+      isCapturing = message.enabled;
       console.log(`[mock] Capture ${isCapturing ? "enabled" : "disabled"}`);
       sendResponse({ success: true });
     }
   });
-  var preConversationId = "";
   var checkForConversationId = () => {
     const body = document.body;
     if (body) {
@@ -69,6 +70,7 @@
     return false;
   };
   var intervalForCheckForConversationId = () => {
+    clearTimeout(checkingIDTimer);
     checkForConversationId();
     checkingIDTimer = setTimeout(() => {
       intervalForCheckForConversationId();

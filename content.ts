@@ -6,7 +6,6 @@ console.log(
 );
 
 let isCapturing = false;
-let isMockingActive = false;
 let checkingIDTimer = 0;
 
 // 从 storage 中恢复 isCapturing 状态
@@ -29,24 +28,24 @@ const restoreCapturingState = async () => {
 // 初始化时恢复状态
 restoreCapturingState();
 
+let preConversationId = "";
 // 监听来自popup的消息
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   console.log("[mock] content.js onMessage", message);
 
   if (message.type === "toggleCapture") {
-    if (!isCapturing && message.enabled) {
+    if (message.enabled) {
       intervalForCheckForConversationId();
-    } else if (isCapturing && !message.enabled) {
-      isCapturing = message.enabled;
+    } else {
+      preConversationId = "";
       clearTimeout(checkingIDTimer);
     }
+    isCapturing = message.enabled;
     console.log(`[mock] Capture ${isCapturing ? "enabled" : "disabled"}`);
 
     sendResponse({ success: true });
   }
 });
-
-let preConversationId = "";
 
 const checkForConversationId = () => {
   const body = document.body;
@@ -84,6 +83,7 @@ const checkForConversationId = () => {
 };
 
 const intervalForCheckForConversationId = () => {
+  clearTimeout(checkingIDTimer);
   checkForConversationId();
   checkingIDTimer = setTimeout(() => {
     intervalForCheckForConversationId();

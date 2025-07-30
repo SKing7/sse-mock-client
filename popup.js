@@ -23555,6 +23555,27 @@
   // popup.tsx
   var import_react = __toESM(require_react());
   var import_client = __toESM(require_client());
+
+  // config.ts
+  var CONFIG = {
+    // 本地 Mock 服务器配置
+    MOCK_SERVER: {
+      BASE_URL: "http://localhost:3000",
+      ENDPOINTS: {
+        MOCK_SERVER: "/api/mock-data",
+        PRESET_DATA: "/api/preset-data"
+      }
+    },
+    // API 匹配模式
+    API_PATTERNS: {
+      CHAT_API: "*/api/v*/core/conversation/chat/v*"
+    }
+  };
+  var getFullUrl = (baseUrl, endpoint) => {
+    return `${baseUrl}${endpoint}`;
+  };
+
+  // popup.tsx
   var Popup = () => {
     const [mockData, setMockData] = (0, import_react.useState)([]);
     const [selectedMock, setSelectedMock] = (0, import_react.useState)("");
@@ -23613,7 +23634,20 @@
     };
     const fetchMockData = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/preset-data");
+        const response = await fetch(
+          getFullUrl(
+            CONFIG.MOCK_SERVER.BASE_URL,
+            CONFIG.MOCK_SERVER.ENDPOINTS.PRESET_DATA
+          ),
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json"
+            },
+            mode: "cors"
+          }
+        );
         if (response.ok) {
           const data = await response.json();
           const mockFiles = data.files;
@@ -23623,7 +23657,14 @@
             saveState("selectedMock", data[0]);
           }
         } else {
-          setStatus("\u65E0\u6CD5\u8FDE\u63A5\u5230\u672C\u5730\u670D\u52A1\u5668");
+          const errorText = await response.text();
+          console.error(
+            "Fetch error:",
+            response.status,
+            response.statusText,
+            errorText
+          );
+          setStatus(`\u670D\u52A1\u5668\u9519\u8BEF ${response.status}: ${response.statusText}`);
         }
       } catch (error) {
         setStatus("\u83B7\u53D6Mock\u6570\u636E\u5931\u8D25");
@@ -23670,6 +23711,8 @@
       await saveState("isMocking", true);
       setStatus("\u6B63\u5728\u542F\u52A8Mock...");
       try {
+        console.log("[popup] Sending startMocking message...");
+        await chrome.runtime.sendMessage({ type: "ping" });
         const response = await chrome.runtime.sendMessage({
           type: "startMocking",
           payload: {
@@ -23681,6 +23724,7 @@
             }
           }
         });
+        console.log("[popup] Received response:", response);
         if (response && response.success) {
           setStatus("Mock\u5DF2\u542F\u52A8");
         } else {
@@ -23689,8 +23733,8 @@
           await saveState("isMocking", false);
         }
       } catch (error) {
-        console.error("Error starting mock:", error);
-        setStatus("Mock\u542F\u52A8\u5931\u8D25");
+        console.error("[popup] Error starting mock:", error);
+        setStatus(`Mock\u542F\u52A8\u5931\u8D25: ${error.message}`);
         setIsMocking(false);
         await saveState("isMocking", false);
       }
