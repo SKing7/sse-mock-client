@@ -32,7 +32,8 @@
   ],
   "host_permissions": [
     "<all_urls>",
-    "http://localhost:3000/*"
+    "http://localhost:3000/*",
+    "http://localhost:4005/*"
   ],
   "icons": {
     "16": "images/icon16.png",
