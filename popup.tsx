@@ -11,6 +11,9 @@ const Popup = () => {
   const [capturedId, setCapturedId] = useState('');
   const [isMocking, setIsMocking] = useState(false);
   const [status, setStatus] = useState('');
+  const [serverUrl, setServerUrl] = useState<string>(
+    CONFIG.MOCK_SERVER.BASE_URL
+  );
 
   useEffect(() => {
     // 获取mock数据列表
@@ -47,12 +50,14 @@ const Popup = () => {
         'isCapturing',
         'capturedId',
         'isMocking',
+        'serverUrl',
       ]);
 
       if (result.selectedMock) setSelectedMock(result.selectedMock);
       if (result.isCapturing !== undefined) setIsCapturing(result.isCapturing);
       if (result.capturedId) setCapturedId(result.capturedId);
       if (result.isMocking !== undefined) setIsMocking(result.isMocking);
+      if (result.serverUrl) setServerUrl(result.serverUrl);
     } catch (error) {
       console.error('Error restoring state:', error);
     }
@@ -67,13 +72,24 @@ const Popup = () => {
     }
   };
 
+  // 保存服务器地址
+  const handleSaveServer = async () => {
+    try {
+      await saveState('serverUrl', serverUrl);
+      setStatus('服务器地址已保存');
+      // 重新获取mock数据
+      fetchMockData();
+      handleStopMocking();
+    } catch (error) {
+      console.error('Error saving server URL:', error);
+      setStatus('保存服务器地址失败');
+    }
+  };
+
   const fetchMockData = async () => {
     try {
       const response = await fetch(
-        getFullUrl(
-          CONFIG.MOCK_SERVER.BASE_URL,
-          CONFIG.MOCK_SERVER.ENDPOINTS.PRESET_DATA
-        ),
+        getFullUrl(serverUrl, CONFIG.MOCK_SERVER.ENDPOINTS.PRESET_DATA),
         {
           method: 'GET',
           headers: {
@@ -168,6 +184,7 @@ const Popup = () => {
             presetData: selectedMock,
             speed: 5,
           },
+          serverUrl: serverUrl,
         },
       });
 
@@ -210,6 +227,34 @@ const Popup = () => {
   return (
     <div style={{ padding: '16px', width: '300px' }}>
       <h2>SSE Mock</h2>
+
+      <div style={{ marginBottom: '16px' }}>
+        <label style={{ display: 'block', marginBottom: '4px' }}>
+          服务器地址:
+        </label>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <input
+            type="text"
+            value={serverUrl}
+            onChange={(e) => setServerUrl(e.target.value)}
+            placeholder="输入服务器地址..."
+            style={{ flex: 1, padding: '4px' }}
+          />
+          <button
+            onClick={handleSaveServer}
+            style={{
+              padding: '4px 8px',
+              backgroundColor: '#2196F3',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              fontSize: '12px',
+            }}
+          >
+            保存
+          </button>
+        </div>
+      </div>
 
       <div style={{ marginBottom: '16px' }}>
         <label style={{ display: 'block', marginBottom: '4px' }}>

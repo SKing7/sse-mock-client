@@ -85,8 +85,9 @@
           }
         });
       }
+      const serverUrl = payload.serverUrl || CONFIG.MOCK_SERVER.BASE_URL;
       const baseUrl = getFullUrl(
-        CONFIG.MOCK_SERVER.BASE_URL,
+        serverUrl,
         CONFIG.MOCK_SERVER.ENDPOINTS.MOCK_SERVER
       );
       const fullUrl = searchParams.toString() ? `${baseUrl}?${searchParams.toString()}` : baseUrl;
@@ -157,7 +158,7 @@
                 ]
               },
               condition: {
-                urlFilter: `${CONFIG.MOCK_SERVER.BASE_URL}${CONFIG.MOCK_SERVER.ENDPOINTS.MOCK_SERVER}`,
+                urlFilter: `${serverUrl}${CONFIG.MOCK_SERVER.ENDPOINTS.MOCK_SERVER}`,
                 resourceTypes: [
                   chrome.declarativeNetRequest.ResourceType.XMLHTTPREQUEST,
                   chrome.declarativeNetRequest.ResourceType.OTHER

@@ -23583,6 +23583,9 @@
     const [capturedId, setCapturedId] = (0, import_react.useState)("");
     const [isMocking, setIsMocking] = (0, import_react.useState)(false);
     const [status, setStatus] = (0, import_react.useState)("");
+    const [serverUrl, setServerUrl] = (0, import_react.useState)(
+      CONFIG.MOCK_SERVER.BASE_URL
+    );
     (0, import_react.useEffect)(() => {
       fetchMockData();
       restoreState();
@@ -23608,7 +23611,8 @@
           "selectedMock",
           "isCapturing",
           "capturedId",
-          "isMocking"
+          "isMocking",
+          "serverUrl"
         ]);
         if (result.selectedMock)
           setSelectedMock(result.selectedMock);
@@ -23618,6 +23622,8 @@
           setCapturedId(result.capturedId);
         if (result.isMocking !== void 0)
           setIsMocking(result.isMocking);
+        if (result.serverUrl)
+          setServerUrl(result.serverUrl);
       } catch (error) {
         console.error("Error restoring state:", error);
       }
@@ -23629,13 +23635,20 @@
         console.error("Error saving state:", error);
       }
     };
+    const handleSaveServer = async () => {
+      try {
+        await saveState("serverUrl", serverUrl);
+        setStatus("\u670D\u52A1\u5668\u5730\u5740\u5DF2\u4FDD\u5B58");
+        fetchMockData();
+      } catch (error) {
+        console.error("Error saving server URL:", error);
+        setStatus("\u4FDD\u5B58\u670D\u52A1\u5668\u5730\u5740\u5931\u8D25");
+      }
+    };
     const fetchMockData = async () => {
       try {
         const response = await fetch(
-          getFullUrl(
-            CONFIG.MOCK_SERVER.BASE_URL,
-            CONFIG.MOCK_SERVER.ENDPOINTS.PRESET_DATA
-          ),
+          getFullUrl(serverUrl, CONFIG.MOCK_SERVER.ENDPOINTS.PRESET_DATA),
           {
             method: "GET",
             headers: {
@@ -23717,7 +23730,8 @@
               conversationId: capturedId,
               presetData: selectedMock,
               speed: 5
-            }
+            },
+            serverUrl
           }
         });
         console.log("[popup] Received response:", response);
@@ -23752,7 +23766,30 @@
         setStatus("\u505C\u6B62Mock\u5931\u8D25");
       }
     };
-    return /* @__PURE__ */ import_react.default.createElement("div", { style: { padding: "16px", width: "300px" } }, /* @__PURE__ */ import_react.default.createElement("h2", null, "SSE Mock"), /* @__PURE__ */ import_react.default.createElement("div", { style: { marginBottom: "16px" } }, /* @__PURE__ */ import_react.default.createElement("label", { style: { display: "block", marginBottom: "4px" } }, "\u9009\u62E9 Mock \u6570\u636E:"), /* @__PURE__ */ import_react.default.createElement(
+    return /* @__PURE__ */ import_react.default.createElement("div", { style: { padding: "16px", width: "300px" } }, /* @__PURE__ */ import_react.default.createElement("h2", null, "SSE Mock"), /* @__PURE__ */ import_react.default.createElement("div", { style: { marginBottom: "16px" } }, /* @__PURE__ */ import_react.default.createElement("label", { style: { display: "block", marginBottom: "4px" } }, "\u670D\u52A1\u5668\u5730\u5740:"), /* @__PURE__ */ import_react.default.createElement("div", { style: { display: "flex", gap: "8px" } }, /* @__PURE__ */ import_react.default.createElement(
+      "input",
+      {
+        type: "text",
+        value: serverUrl,
+        onChange: (e) => setServerUrl(e.target.value),
+        placeholder: "\u8F93\u5165\u670D\u52A1\u5668\u5730\u5740...",
+        style: { flex: 1, padding: "4px" }
+      }
+    ), /* @__PURE__ */ import_react.default.createElement(
+      "button",
+      {
+        onClick: handleSaveServer,
+        style: {
+          padding: "4px 8px",
+          backgroundColor: "#2196F3",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          fontSize: "12px"
+        }
+      },
+      "\u4FDD\u5B58"
+    ))), /* @__PURE__ */ import_react.default.createElement("div", { style: { marginBottom: "16px" } }, /* @__PURE__ */ import_react.default.createElement("label", { style: { display: "block", marginBottom: "4px" } }, "\u9009\u62E9 Mock \u6570\u636E:"), /* @__PURE__ */ import_react.default.createElement(
       "select",
       {
         value: selectedMock,

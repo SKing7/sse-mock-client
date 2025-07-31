@@ -93,9 +93,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       });
     }
 
-    // 构建带有查询参数的完整 URL
+    // 使用用户设置的服务器地址，如果没有则使用默认配置
+    const serverUrl = payload.serverUrl || CONFIG.MOCK_SERVER.BASE_URL;
     const baseUrl = getFullUrl(
-      CONFIG.MOCK_SERVER.BASE_URL,
+      serverUrl,
       CONFIG.MOCK_SERVER.ENDPOINTS.MOCK_SERVER
     );
     const fullUrl = searchParams.toString()
@@ -171,7 +172,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 ],
               },
               condition: {
-                urlFilter: `${CONFIG.MOCK_SERVER.BASE_URL}${CONFIG.MOCK_SERVER.ENDPOINTS.MOCK_SERVER}`,
+                urlFilter: `${serverUrl}${CONFIG.MOCK_SERVER.ENDPOINTS.MOCK_SERVER}`,
                 resourceTypes: [
                   chrome.declarativeNetRequest.ResourceType.XMLHTTPREQUEST,
                   chrome.declarativeNetRequest.ResourceType.OTHER,
