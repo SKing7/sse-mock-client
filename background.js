@@ -184,15 +184,6 @@
       sendResponse({ success: true });
       return true;
     }
-    if (message.type === "capturedId") {
-      console.log("[mock] background capturedId:", message);
-      chrome.storage.local.set({
-        capturedId: message.id,
-        lastCaptureTime: Date.now()
-      });
-      sendResponse({ success: true });
-      return true;
-    }
     if (message.type === "getDynamicRules") {
       chrome.declarativeNetRequest.getDynamicRules((rules) => {
         console.log("[mock] Current dynamic rules:", rules);

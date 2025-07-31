@@ -21,12 +21,14 @@ const Popup = () => {
 
     // 监听storage变化来接收捕获的ID
     const storageListener = (changes: any) => {
+      console.log("popup storage chagne", changes);
       if (changes.capturedId && changes.capturedId.newValue) {
         const newId = changes.capturedId.newValue;
         setCapturedId(newId);
         setIsMocking(false);
         setStatus(`捕获到规则ID: ${newId}`);
         saveState("isMocking", false);
+        handleStopMocking();
         console.log("[mock] capturedId from storage:", newId);
       }
     };

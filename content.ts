@@ -55,26 +55,20 @@ const checkForConversationId = () => {
       console.log(`[mock] Found conversation ID: ${conversationId}`);
       preConversationId = conversationId;
 
-      // 然后发送捕获的ID到background script
-      chrome.runtime.sendMessage(
-        {
-          type: "capturedId",
-          id: conversationId,
-        },
-        (response) => {
-          if (chrome.runtime.lastError) {
-            console.error(
-              "[mock] Error sending message to background:",
-              chrome.runtime.lastError
-            );
-          } else {
-            console.log(
-              "[mock] Message sent to background successfully:",
-              response
-            );
-          }
-        }
-      );
+      // 直接保存到storage，popup会监听这个变化
+      chrome.storage.local
+        .set({
+          capturedId: conversationId,
+          lastCaptureTime: Date.now(),
+        })
+        .then(() => {
+          console.log(
+            `[mock] Saved conversation ID to storage: ${conversationId}`
+          );
+        })
+        .catch((error) => {
+          console.error("[mock] Error saving to storage:", error);
+        });
 
       return true; // 找到了ID
     }

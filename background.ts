@@ -199,17 +199,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 
-  if (message.type === "capturedId") {
-    console.log("[mock] background capturedId:", message);
-    // 将捕获的ID保存到storage，popup会监听这个变化
-    chrome.storage.local.set({
-      capturedId: message.id,
-      lastCaptureTime: Date.now(),
-    });
-    sendResponse({ success: true });
-    return true;
-  }
-
   if (message.type === "getDynamicRules") {
     // 调试功能：获取当前的动态规则
     chrome.declarativeNetRequest.getDynamicRules((rules) => {

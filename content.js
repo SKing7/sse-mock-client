@@ -45,25 +45,16 @@
       if (conversationId && conversationId !== preConversationId) {
         console.log(`[mock] Found conversation ID: ${conversationId}`);
         preConversationId = conversationId;
-        chrome.runtime.sendMessage(
-          {
-            type: "capturedId",
-            id: conversationId
-          },
-          (response) => {
-            if (chrome.runtime.lastError) {
-              console.error(
-                "[mock] Error sending message to background:",
-                chrome.runtime.lastError
-              );
-            } else {
-              console.log(
-                "[mock] Message sent to background successfully:",
-                response
-              );
-            }
-          }
-        );
+        chrome.storage.local.set({
+          capturedId: conversationId,
+          lastCaptureTime: Date.now()
+        }).then(() => {
+          console.log(
+            `[mock] Saved conversation ID to storage: ${conversationId}`
+          );
+        }).catch((error) => {
+          console.error("[mock] Error saving to storage:", error);
+        });
         return true;
       }
     }
