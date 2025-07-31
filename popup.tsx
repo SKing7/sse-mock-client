@@ -24,7 +24,9 @@ const Popup = () => {
       if (changes.capturedId && changes.capturedId.newValue) {
         const newId = changes.capturedId.newValue;
         setCapturedId(newId);
+        setIsMocking(false);
         setStatus(`捕获到规则ID: ${newId}`);
+        saveState("isMocking", false);
         console.log("[mock] capturedId from storage:", newId);
       }
     };
@@ -50,12 +52,6 @@ const Popup = () => {
       if (result.isCapturing !== undefined) setIsCapturing(result.isCapturing);
       if (result.capturedId) setCapturedId(result.capturedId);
       if (result.isMocking !== undefined) setIsMocking(result.isMocking);
-      console.log("mock", {
-        selectedMock: result.selectedMock,
-        isCapturing: result.isCapturing,
-        capturedId: result.capturedId,
-        isMocking: result.isMocking,
-      });
     } catch (error) {
       console.error("Error restoring state:", error);
     }
@@ -90,9 +86,9 @@ const Popup = () => {
         const data = await response.json();
         const mockFiles = data.files;
         setMockData(mockFiles);
-        if (data.length > 0) {
-          setSelectedMock(data[0]);
-          saveState("selectedMock", data[0]);
+        if (mockFiles.length > 0) {
+          setSelectedMock(mockFiles[0]);
+          saveState("selectedMock", mockFiles[0]);
         }
       } else {
         const errorText = await response.text();
@@ -276,7 +272,6 @@ const Popup = () => {
               border: "none",
               borderRadius: "4px",
             }}
-            disabled={!capturedId || !selectedMock}
           >
             开始 Mock
           </button>

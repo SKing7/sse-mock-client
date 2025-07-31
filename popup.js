@@ -23590,7 +23590,9 @@
         if (changes.capturedId && changes.capturedId.newValue) {
           const newId = changes.capturedId.newValue;
           setCapturedId(newId);
+          setIsMocking(false);
           setStatus(`\u6355\u83B7\u5230\u89C4\u5219ID: ${newId}`);
+          saveState("isMocking", false);
           console.log("[mock] capturedId from storage:", newId);
         }
       };
@@ -23615,12 +23617,6 @@
           setCapturedId(result.capturedId);
         if (result.isMocking !== void 0)
           setIsMocking(result.isMocking);
-        console.log("mock", {
-          selectedMock: result.selectedMock,
-          isCapturing: result.isCapturing,
-          capturedId: result.capturedId,
-          isMocking: result.isMocking
-        });
       } catch (error) {
         console.error("Error restoring state:", error);
       }
@@ -23652,9 +23648,9 @@
           const data = await response.json();
           const mockFiles = data.files;
           setMockData(mockFiles);
-          if (data.length > 0) {
-            setSelectedMock(data[0]);
-            saveState("selectedMock", data[0]);
+          if (mockFiles.length > 0) {
+            setSelectedMock(mockFiles[0]);
+            saveState("selectedMock", mockFiles[0]);
           }
         } else {
           const errorText = await response.text();
@@ -23797,8 +23793,7 @@
           color: "white",
           border: "none",
           borderRadius: "4px"
-        },
-        disabled: !capturedId || !selectedMock
+        }
       },
       "\u5F00\u59CB Mock"
     ) : /* @__PURE__ */ import_react.default.createElement(
