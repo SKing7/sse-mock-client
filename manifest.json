@@ -7,7 +7,6 @@
     "activeTab",
     "scripting",
     "declarativeNetRequest",
-    "web_accessible_resources",
     "declarativeNetRequestWithHostAccess",
     "storage",
     "tabs"
