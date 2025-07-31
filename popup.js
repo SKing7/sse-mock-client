@@ -23594,7 +23594,6 @@
           setIsMocking(false);
           setStatus(`\u6355\u83B7\u5230\u89C4\u5219ID: ${newId}`);
           saveState("isMocking", false);
-          handleStopMocking();
           console.log("[mock] capturedId from storage:", newId);
         }
       };

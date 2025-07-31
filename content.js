@@ -22,6 +22,11 @@
       console.error("[mock] Error restoring capturing state:", error);
     }
   };
+  var stopMocking = async () => {
+    const response = await chrome.runtime.sendMessage({
+      type: "stopMocking"
+    });
+  };
   restoreCapturingState();
   var preConversationId = "";
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
@@ -45,7 +50,9 @@
       if (conversationId && conversationId !== preConversationId) {
         console.log(`[mock] Found conversation ID: ${conversationId}`);
         preConversationId = conversationId;
+        stopMocking();
         chrome.storage.local.set({
+          isMocking: false,
           capturedId: conversationId,
           lastCaptureTime: Date.now()
         }).then(() => {

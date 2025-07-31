@@ -25,6 +25,12 @@ const restoreCapturingState = async () => {
   }
 };
 
+const stopMocking = async () => {
+  await chrome.runtime.sendMessage({
+    type: "stopMocking",
+  });
+};
+
 // 初始化时恢复状态
 restoreCapturingState();
 
@@ -55,9 +61,12 @@ const checkForConversationId = () => {
       console.log(`[mock] Found conversation ID: ${conversationId}`);
       preConversationId = conversationId;
 
+      // id出现变化时，重置mocking状态，更新storage状态
+      stopMocking();
       // 直接保存到storage，popup会监听这个变化
       chrome.storage.local
         .set({
+          isMocking: false,
           capturedId: conversationId,
           lastCaptureTime: Date.now(),
         })

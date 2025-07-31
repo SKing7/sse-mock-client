@@ -28,7 +28,6 @@ const Popup = () => {
         setIsMocking(false);
         setStatus(`捕获到规则ID: ${newId}`);
         saveState("isMocking", false);
-        handleStopMocking();
         console.log("[mock] capturedId from storage:", newId);
       }
     };
@@ -159,9 +158,6 @@ const Popup = () => {
 
     try {
       console.log("[popup] Sending startMocking message...");
-
-      // 确保 background script 是活跃的
-      await chrome.runtime.sendMessage({ type: "ping" });
 
       const response = await chrome.runtime.sendMessage({
         type: "startMocking",
