@@ -23560,7 +23560,7 @@
   var CONFIG = {
     // 本地 Mock 服务器配置
     MOCK_SERVER: {
-      BASE_URL: "http://localhost:3000",
+      BASE_URL: "https://sse-mock-server-btuhq3061-skingpts-projects.vercel.app",
       ENDPOINTS: {
         MOCK_SERVER: "/api/mock-data",
         PRESET_DATA: "/api/preset-data"
