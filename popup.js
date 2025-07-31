@@ -23689,7 +23689,7 @@
           }
         }
       } catch (error) {
-        console.error("Error toggling capture:", error);
+        console.warn("Error toggling capture:", error);
         setStatus("\u5207\u6362\u6355\u83B7\u72B6\u6001\u5931\u8D25");
         setIsCapturing(!newCapturingState);
         await saveState("isCapturing", !newCapturingState);
@@ -23709,7 +23709,6 @@
       setStatus("\u6B63\u5728\u542F\u52A8Mock...");
       try {
         console.log("[popup] Sending startMocking message...");
-        await chrome.runtime.sendMessage({ type: "ping" });
         const response = await chrome.runtime.sendMessage({
           type: "startMocking",
           payload: {

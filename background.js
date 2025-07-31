@@ -20,14 +20,51 @@
 
   // background.ts
   console.log("[mock] background script loaded");
+  var updateIcon = (isMocking) => {
+    const iconPaths = isMocking ? {
+      "16": "images/mock_on_16.png",
+      "48": "images/mock_on_48.png",
+      "128": "images/mock_on_128.png"
+    } : {
+      "16": "images/mock_off_16.png",
+      "48": "images/mock_off_48.png",
+      "128": "images/mock_off_128.png"
+    };
+    console.log(`[mock] updateIcon: ${isMocking ? "ON" : "OFF"}`);
+    chrome.action.setIcon(
+      {
+        path: iconPaths
+      },
+      () => {
+        if (chrome.runtime.lastError) {
+          console.error("[mock] Error setting icon:", chrome.runtime.lastError);
+        } else {
+          console.log(`[mock] Icon updated: ${isMocking ? "ON" : "OFF"}`);
+        }
+      }
+    );
+  };
+  chrome.storage.onChanged.addListener((changes, namespace) => {
+    if (namespace === "local" && changes.isMocking) {
+      const isMocking = changes.isMocking.newValue;
+      updateIcon(isMocking);
+    }
+  });
   chrome.runtime.onInstalled.addListener(() => {
     console.log("[mock] background script installed");
+    updateIcon(false);
     chrome.declarativeNetRequest.updateDynamicRules({
       removeRuleIds: [1, 2]
     }).then(() => {
       console.log("[mock] Cleaned up old dynamic rules on install");
     }).catch((error) => {
       console.log("[mock] No old rules to clean up:", error);
+    });
+  });
+  chrome.runtime.onStartup.addListener(() => {
+    chrome.storage.local.get(["isMocking"], (result) => {
+      const isMocking = result.isMocking || false;
+      updateIcon(isMocking);
     });
   });
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -130,6 +167,7 @@
           ]
         }).then(() => {
           console.log("[mock] Dynamic rule added successfully");
+          updateIcon(true);
           chrome.tabs.query({}, (tabs) => {
             tabs.forEach((tab) => {
               if (tab.id) {
@@ -162,6 +200,7 @@
         removeRuleIds: [1, 2]
       }).then(() => {
         console.log("[mock] Dynamic rule removed successfully");
+        updateIcon(false);
       }).catch((error) => {
         console.error("[mock] Error removing dynamic rule:", error);
       });

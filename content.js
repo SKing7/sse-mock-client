@@ -23,7 +23,7 @@
     }
   };
   var stopMocking = async () => {
-    const response = await chrome.runtime.sendMessage({
+    await chrome.runtime.sendMessage({
       type: "stopMocking"
     });
   };

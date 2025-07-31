@@ -7,6 +7,7 @@
     "activeTab",
     "scripting",
     "declarativeNetRequest",
+    "web_accessible_resources",
     "declarativeNetRequestWithHostAccess",
     "storage",
     "tabs"
@@ -14,9 +15,9 @@
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "16": "images/icon16.png",
-      "48": "images/icon48.png",
-      "128": "images/icon128.png"
+      "16": "images/mock_off_16.png",
+      "48": "images/mock_off_48.png",
+      "128": "images/mock_off_128.png"
     }
   },
   "background": {
@@ -36,9 +37,15 @@
     "http://localhost:4005/*",
     "https://sse-mock-server-btuhq3061-skingpts-projects.vercel.app/*"
   ],
+  "web_accessible_resources": [
+    {
+      "resources": ["images/*.png"],
+      "matches": ["<all_urls>"]
+    }
+  ],
   "icons": {
-    "16": "images/icon16.png",
-    "48": "images/icon48.png",
-    "128": "images/icon128.png"
+    "16": "images/mock_off_16.png",
+    "48": "images/mock_off_48.png",
+    "128": "images/mock_off_128.png"
   }
 }
