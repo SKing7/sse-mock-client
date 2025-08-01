@@ -17,9 +17,6 @@ const Popup = () => {
 
   useEffect(() => {
     // 获取mock数据列表
-    fetchMockData();
-
-    // 从存储中恢复状态
     restoreState();
 
     // 监听storage变化来接收捕获的ID
@@ -52,12 +49,17 @@ const Popup = () => {
         'isMocking',
         'serverUrl',
       ]);
+      const { selectedMock, isCapturing, capturedId, isMocking, serverUrl } =
+        result;
 
-      if (result.selectedMock) setSelectedMock(result.selectedMock);
-      if (result.isCapturing !== undefined) setIsCapturing(result.isCapturing);
-      if (result.capturedId) setCapturedId(result.capturedId);
-      if (result.isMocking !== undefined) setIsMocking(result.isMocking);
-      if (result.serverUrl) setServerUrl(result.serverUrl);
+      if (result.selectedMock) setSelectedMock(selectedMock);
+      if (result.isCapturing !== undefined) setIsCapturing(isCapturing);
+      if (result.capturedId) setCapturedId(capturedId);
+      if (result.isMocking !== undefined) setIsMocking(isMocking);
+      if (serverUrl) {
+        setServerUrl(serverUrl);
+        fetchMockData(serverUrl);
+      }
     } catch (error) {
       console.error('Error restoring state:', error);
     }
@@ -77,7 +79,6 @@ const Popup = () => {
     try {
       await saveState('serverUrl', serverUrl);
       setStatus('服务器地址已保存');
-      // 重新获取mock数据
       fetchMockData();
       handleStopMocking();
     } catch (error) {
@@ -86,10 +87,11 @@ const Popup = () => {
     }
   };
 
-  const fetchMockData = async () => {
+  const fetchMockData = async (url?: string) => {
+    const currentServerUrl = url || serverUrl;
     try {
       const response = await fetch(
-        getFullUrl(serverUrl, CONFIG.MOCK_SERVER.ENDPOINTS.PRESET_DATA),
+        getFullUrl(currentServerUrl, CONFIG.MOCK_SERVER.ENDPOINTS.PRESET_DATA),
         {
           method: 'GET',
           headers: {
